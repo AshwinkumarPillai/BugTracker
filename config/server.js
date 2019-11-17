@@ -7,8 +7,8 @@ import projectRoutes from "../src/routes/project.routes";
 const server = express();
 server.use(bodyParser.json());
 
-server.use("/project", projectRoutes);
-server.use("/user", userRoutes);
-server.use("/bug", bugRoutes);
+// server.use("/project", projectRoutes);
+// server.use("/user", userRoutes);
+// server.use("/bug", bugRoutes);
 
 export default server;

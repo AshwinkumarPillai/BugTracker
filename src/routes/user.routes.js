@@ -6,7 +6,7 @@ const router = Router();
 
 router.post("/login", userController.login);
 router.post("/register", userController.registerUser);
-router.post("/getAllProjects", auth, userController.getAllProjects);
-router.post("/getOneProject", auth, userController.getOneProject);
+router.post("/getAllProjects", auth.checkToken, userController.getAllProjects);
+router.post("/getOneProject", auth.checkToken, userController.getOneProject);
 
 module.exports = router;

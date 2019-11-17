@@ -4,10 +4,10 @@ import { Router } from "express";
 
 const router = Router();
 
-router.post("/new", auth, projectController.createProject);
-router.post("/addbuddy", auth, projectController.addBuddy);
-router.post("/getAllUsers", auth, projectController.getAllUsers);
+router.post("/new", auth.checkToken, projectController.createProject);
+router.post("/addbuddy", auth.checkToken, projectController.addBuddy);
+router.post("/getAllUsers", auth.checkToken, projectController.getAllUsers);
 router.post("/verify-add", projectController.verifybuddy);
-router.post("/removeBuddy", auth, projectController.removeBuddy);
+router.post("/removeBuddy", auth.checkToken, projectController.removeBuddy);
 
 module.exports = router;
