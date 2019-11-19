@@ -21,6 +21,7 @@
     "nodemailer": "^6.3.1"
   },
   "devDependencies": {
+    "cors": "^2.8.5",
     "nodemon": "^1.19.4"
   },
   "repository": {
