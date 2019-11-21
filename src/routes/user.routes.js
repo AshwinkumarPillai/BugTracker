@@ -9,5 +9,6 @@ router.post("/register", userController.registerUser);
 router.post("/getAllProjects", auth.checkToken, userController.getAllProjects);
 router.post("/getOneProject", auth.checkToken, userController.getOneProject);
 router.post("/update", auth.checkToken, userController.editUsers);
+router.post("/getEveryUser", auth.checkToken, userController.getEveryUser);
 
 module.exports = router;

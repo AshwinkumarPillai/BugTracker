@@ -9,8 +9,8 @@ module.exports.sendMailService = async (from, to, subject, html) => {
     secure: false,
     requireTLS: true,
     auth: {
-      user: "someOne@something.com",
-      pass: "password"
+      user: "ashwinfury3@gmail.com",
+      pass: "fury$123"
     }
   });
 

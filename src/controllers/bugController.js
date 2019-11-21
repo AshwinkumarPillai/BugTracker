@@ -27,7 +27,6 @@ module.exports.createBug = async (req, res) => {
   const subtitle = req.body.subtitle;
   const status = req.body.status;
   const priority = req.body.priority;
-  const archived = req.body.archived;
   const screenShot = req.body.screenShot;
   const deadline = req.body.deadline;
   let getassignedDev = req.body.assignedDev;

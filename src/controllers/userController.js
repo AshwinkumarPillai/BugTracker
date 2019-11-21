@@ -1,6 +1,7 @@
 import userModel from "../models/user";
 import projectModel from "../models/project";
 import userProjectModel from "../models/UserProject";
+import bugModel from "../models/bug";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
@@ -94,7 +95,6 @@ module.exports.getAllProjects = async (req, res) => {
       })
       .populate("superAdmin", "name email designation")
       .exec((err, projects) => {
-        console.log(projects);
         return res.json({ projects });
       });
 
@@ -104,25 +104,30 @@ module.exports.getAllProjects = async (req, res) => {
   }
 };
 
-module.exports.getOneProject = (req, res) => {
+module.exports.getOneProject = async (req, res) => {
   const user = req.user;
   const userId = user._id;
   const projectId = req.body.projectId;
+  const bugAssigned = req.body.bugAssigned;
 
-  userProjectModel
-    .findOne({ userId, projectId, active: 1 })
-    .then(userProject => {
-      // console.log(userProject);
-      if (!userProject) return res.json("Not authorized to access project");
-      projectModel
-        .findById(userProject.projectId)
-        .then(project => {
-          if (!project) return res.json("Invalid Project");
-          return res.json({ project });
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    })
-    .catch(err => console.log(err));
+  const project = await projectModel.findById(projectId).select("title");
+
+  const userProject = await userProjectModel
+    .find({ projectId })
+    .select("userId role -_id")
+    .populate("userId", "name email designation")
+    .exec(async (err, users) => {
+      let bugs = await bugModel.find({
+        _id: {
+          $in: bugAssigned
+        }
+      });
+      if (err) console.log(err);
+      return res.json({ bugs, users, project });
+    });
+};
+
+module.exports.getEveryUser = async (req, res) => {
+  let Allusers = await userModel.find().select("name email designation");
+  return res.json({ Allusers });
 };

@@ -40,22 +40,13 @@ module.exports.getAllUsers = async (req, res) => {
   const user = req.user;
   const projectId = req.body.projectId;
   try {
-    let userProj = await userProjectModel.find({ projectId });
-    if (userProj.length === 0) return res.json({ message: "Invalid project id" });
-
-    let userIds = userProj.map(val => mongoose.Types.ObjectId(val.userId));
-
-    let users = await userModel.find({
-      _id: {
-        $in: userIds
-      }
-    });
-    console.log(users);
-    users.forEach(user => {
-      user.password = "";
-    });
-    if (!users) return res.json({ message: "No users in this projects!(Error)" });
-    return res.json({ users, userProj });
+    let userProj = await userProjectModel
+      .find({ projectId, active: 1 })
+      .select("userId role")
+      .populate("userId", "name email designation")
+      .exec((err, users) => {
+        return res.json({ users });
+      });
   } catch (err) {
     console.log(err);
   }
@@ -72,6 +63,9 @@ module.exports.addBuddy = async (req, res) => {
   const isNew = req.body.isNew;
 
   try {
+    let exists = await userProjectModel.findOne({ userId: newBuddy, projectId });
+    if (exists) return res.json({ message: "This user is already present in your project" });
+
     let checkuser = await userModel.findById(newBuddy);
     if (!checkuser) return res.json("No User Found");
 

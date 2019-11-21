@@ -7,7 +7,10 @@ const BugSchema = new Schema(
       type: String,
       required: true
     },
-    subtitle: String,
+    subtitle: {
+      type: String,
+      default: ""
+    },
     status: {
       type: String,
       required: true
