@@ -56,8 +56,7 @@ const BugSchema = new Schema(
     },
     solvedBy: {
       type: ObjectId,
-      ref: "user",
-      default: null
+      ref: "user"
     }
   },
   { timestamps: true }

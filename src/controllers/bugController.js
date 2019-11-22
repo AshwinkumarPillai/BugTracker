@@ -55,7 +55,6 @@ module.exports.createBug = async (req, res) => {
       subtitle,
       status,
       priority,
-      archived,
       screenShot,
       deadline,
       assignedDev,
@@ -141,9 +140,9 @@ module.exports.archive = async (req, res) => {
     let bug = await BugModel.findById(bugId);
     bug.archived = 1;
     let upBug = await bug.save();
-    let subject = "bug  Update";
-    let html = "A bug has been archived by " + userEmail;
-    watchMail(upBug._id, userEmail, subject, html);
+    // let subject = "bug  Update";
+    // let html = "A bug has been archived by " + userEmail;
+    // watchMail(upBug._id, userEmail, subject, html);
     return res.json({ upBug });
   } catch (err) {
     console.log(err);
@@ -207,6 +206,41 @@ module.exports.AssignDev = async (req, res) => {
     mail.sendMailService(from, to, subject, html);
 
     return res.json({ users, updatedBug });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.removeDev = async (req, res) => {
+  const user = req.user;
+  const bugId = req.body.bugId;
+  const email = user.email;
+  const dev = req.body.dev;
+
+  try {
+    let bug = await BugModel.findById(bugId);
+    // dev =
+    // bug.assignedDev.forEach(element => {
+
+    // })
+
+    // let updatedBug = await bug.save();
+
+    // let users = await userModel.find({
+    //   _id: {
+    //     $in: dev
+    //   }
+    // });
+    // users.forEach(obj => {
+    //   obj.password = "";
+    // });
+    // let from = email;
+    // let to = users.map(obj => obj.email);
+    // let subject = "New bug assigned";
+    // let html = "You have been assigned a bug<br>Please check your project to know more";
+    // mail.sendMailService(from, to, subject, html);
+    return res.json({ message: "hello" });
+    // return res.json({ users, updatedBug });
   } catch (error) {
     console.log(error);
   }

@@ -108,20 +108,23 @@ module.exports.getOneProject = async (req, res) => {
   const user = req.user;
   const userId = user._id;
   const projectId = req.body.projectId;
-  const bugAssigned = req.body.bugAssigned;
 
-  const project = await projectModel.findById(projectId).select("title");
+  const project = await projectModel.findById(projectId).select("title bugAssigned");
 
   const userProject = await userProjectModel
     .find({ projectId })
     .select("userId role -_id")
     .populate("userId", "name email designation")
+    .populate("solvedBy", "name email designation")
     .exec(async (err, users) => {
-      let bugs = await bugModel.find({
-        _id: {
-          $in: bugAssigned
-        }
-      });
+      let bugs = await bugModel
+        .find({
+          _id: {
+            $in: project.bugAssigned
+          },
+          archived: 0
+        })
+        .populate("assignedDev.userId solvedBy", "name email designation");
       if (err) console.log(err);
       return res.json({ bugs, users, project });
     });
