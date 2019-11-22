@@ -140,9 +140,9 @@ module.exports.archive = async (req, res) => {
     let bug = await BugModel.findById(bugId);
     bug.archived = 1;
     let upBug = await bug.save();
-    // let subject = "bug  Update";
-    // let html = "A bug has been archived by " + userEmail;
-    // watchMail(upBug._id, userEmail, subject, html);
+    let subject = "bug  Update";
+    let html = "A bug has been archived by " + userEmail;
+    watchMail(upBug._id, userEmail, subject, html);
     return res.json({ upBug });
   } catch (err) {
     console.log(err);
@@ -187,8 +187,7 @@ module.exports.AssignDev = async (req, res) => {
   });
   try {
     let bug = await BugModel.findById(bugId);
-    Array.prototype.push.apply(bug.assignedDev, assignedDev);
-
+    bug.assignedDev = assignedDev;
     let updatedBug = await bug.save();
 
     let users = await userModel.find({

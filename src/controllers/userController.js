@@ -20,7 +20,6 @@ module.exports.login = async (req, res) => {
         },
         secret
       );
-      user.token = token;
       await user.save();
       return res.json({ message: "Logged in Succesfully.Hello " + user.name, token });
     }
