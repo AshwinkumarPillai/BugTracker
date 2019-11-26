@@ -28,7 +28,7 @@ const BugSchema = new Schema(
     },
     deadline: {
       type: Date,
-      default: ""
+      default: "0000-01-01"
     },
     solution: {
       type: String,

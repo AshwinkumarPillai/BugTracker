@@ -130,6 +130,7 @@ module.exports.removeBuddy = async (req, res) => {
   const adminEmail = user.email;
   const userId = req.body.userId;
   const projectId = req.body.projectId;
+
   try {
     let adminProject = await userProjectModel.findOne({ userId: adminId, projectId });
     if (adminProject.role === "dev") return res.json("You are not authorized to perform this action. Only admins are allowed");
