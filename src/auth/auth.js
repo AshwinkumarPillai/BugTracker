@@ -2,7 +2,7 @@ import userModel from "../models/user";
 import jwt from "jsonwebtoken";
 
 module.exports.checkToken = async (req, res, next) => {
-  console.log("Check Token called");
+  // console.log("Check Token called");
   const token = req.headers["x-auth"];
   const secret = "sampleTest";
   let decoded_token = jwt.verify(token, secret);

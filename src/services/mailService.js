@@ -24,12 +24,12 @@ module.exports.sendMailService = async (from, to, subject, html) => {
     (error, info) => {
       if (error) {
         console.log("Error while sending email");
-        console.log(error.message);
-        console.log(error);
+        // console.log(error.message);
+        // console.log(error);
         // return error.message;
       }
       console.log("success");
-      console.log(info);
+      // console.log(info);
       // return info;
     }
   );

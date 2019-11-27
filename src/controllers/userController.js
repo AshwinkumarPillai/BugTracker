@@ -30,10 +30,12 @@ module.exports.login = async (req, res) => {
 };
 
 module.exports.registerUser = (req, res) => {
+  if (!req.body.name || !req.body.email || !req.body.password || !req.body.contact || !req.body.designation)
+    return res.json({ message: "Please fill all neccessary fields", status: -1 });
   userModel
     .findOne({ email: req.body.email })
     .then(user => {
-      if (user) return res.json({ message: "Email Already registered!" });
+      if (user) return res.json({ message: "Email Already registered!", status: -1 });
       else {
         const hashedPassword = bcrypt.hashSync(req.body.password, 12);
 
@@ -42,15 +44,18 @@ module.exports.registerUser = (req, res) => {
           email: req.body.email,
           password: hashedPassword,
           contact: req.body.contact,
-          designation: req.body.designation
+          designation: req.body.designation,
+          github: req.body.github,
+          twitter: req.body.twitter,
+          portfolio: req.body.portfolio,
+          linkedIn: req.body.linkedIn
         });
 
         newUser
           .save()
           .then(userDoc => {
             if (userDoc) {
-              userDoc.password = "";
-              return res.json({ message: "Registration Successful", userDoc });
+              return res.json({ message: "Registration Successful", status: 200 });
             }
           })
           .catch(err => console.log(err));
@@ -64,6 +69,10 @@ module.exports.editUsers = async (req, res) => {
   let name = req.body.name;
   let email = req.body.email;
   let designation = req.body.designation;
+  let github = req.body.github;
+  let twitter = req.body.twitter;
+  let portfolio = req.body.portfolio;
+  let linkedIn = req.body.linkedIn;
 
   try {
     let upuser = await userModel.findById(user._id);
@@ -71,6 +80,11 @@ module.exports.editUsers = async (req, res) => {
     upuser.name = name;
     upuser.email = email;
     upuser.designation = designation;
+    upuser.github = github;
+    upuser.twitter = twitter;
+    upuser.portfolio = portfolio;
+    upuser.linkedIn = linkedIn;
+
     let update = await upuser.save();
     if (!update) return res.json({ message: "Couldn't update profile" });
     update.password = "";

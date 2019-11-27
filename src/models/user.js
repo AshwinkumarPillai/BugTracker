@@ -15,7 +15,11 @@ const userSchema = new Schema(
       required: true
     },
     contact: Number,
-    designation: String
+    designation: String,
+    github: String,
+    twitter: String,
+    portfolio: String,
+    linkedIn: String
   },
   {
     timestamps: true
