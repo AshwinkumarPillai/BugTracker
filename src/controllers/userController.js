@@ -21,7 +21,16 @@ module.exports.login = async (req, res) => {
         secret
       );
       await user.save();
-      return res.json({ message: "Logged in Succesfully.Hello " + user.name, token });
+      let userdata = {
+        name: user.name,
+        email: user.email,
+        designation: user.designation,
+        github: user.github,
+        twitter: user.twitter,
+        portfolio: user.portfolio,
+        linkedIn: user.linkedIn
+      };
+      return res.json({ message: "Logged in Succesfully.Hello " + user.name, token, userdata });
     }
     return res.json({ message: "Incorrect password" });
   } catch (err) {
@@ -67,7 +76,6 @@ module.exports.registerUser = (req, res) => {
 module.exports.editUsers = async (req, res) => {
   let user = req.user;
   let name = req.body.name;
-  let email = req.body.email;
   let designation = req.body.designation;
   let github = req.body.github;
   let twitter = req.body.twitter;
@@ -78,7 +86,6 @@ module.exports.editUsers = async (req, res) => {
     let upuser = await userModel.findById(user._id);
     if (!upuser) return res.json({ message: "No record found" });
     upuser.name = name;
-    upuser.email = email;
     upuser.designation = designation;
     upuser.github = github;
     upuser.twitter = twitter;
@@ -87,8 +94,16 @@ module.exports.editUsers = async (req, res) => {
 
     let update = await upuser.save();
     if (!update) return res.json({ message: "Couldn't update profile" });
-    update.password = "";
-    return res.json({ message: "Profile updated successfully!", update });
+    let userdata = {
+      name: update.name,
+      email: update.email,
+      designation: update.designation,
+      github: update.github,
+      twitter: update.twitter,
+      portfolio: update.portfolio,
+      linkedIn: update.linkedIn
+    };
+    return res.json({ message: "Profile updated successfully!", userdata });
   } catch (err) {
     console.log(err);
   }
@@ -146,4 +161,11 @@ module.exports.getOneProject = async (req, res) => {
 module.exports.getEveryUser = async (req, res) => {
   let Allusers = await userModel.find().select("name email designation");
   return res.json({ Allusers });
+};
+
+module.exports.viewProfile = async (req, res) => {
+  let userId = req.body.userId;
+  let user = await userModel.findById(userId).select("-password -contact");
+  if (!user) return res.json({ status: 300 });
+  return res.json({ user, status: 200 });
 };
