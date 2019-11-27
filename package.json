@@ -2,6 +2,9 @@
   "name": "bug-tracker",
   "version": "1.0.0",
   "main": "index.js",
+  "engines": {
+    "node": "10.15.1"
+  },
   "scripts": {
     "start": "babel-node index.js",
     "dev:start": "nodemon --exec babel-node index.js"
@@ -18,10 +21,10 @@
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.7.11",
-    "nodemailer": "^6.3.1"
+    "nodemailer": "^6.3.1",
+    "cors": "^2.8.5"
   },
   "devDependencies": {
-    "cors": "^2.8.5",
     "nodemon": "^1.19.4"
   },
   "repository": {
