@@ -1,6 +1,7 @@
 import projectModel from "../models/project";
 import userProjectModel from "../models/UserProject";
 import userModel from "../models/user";
+import bugModel from "../models/bug";
 import mongoose from "mongoose";
 import mail from "../services/mailService";
 
@@ -149,4 +150,17 @@ module.exports.removeBuddy = async (req, res) => {
   } catch (error) {
     console.log(error);
   }
+};
+
+module.exports.deleteProject = async (req, res, next) => {
+  const projectId = req.body.projectId;
+  let project = await projectModel.findById(projectId);
+  await bugModel.deleteMany({
+    _id: {
+      $in: project.bugAssigned
+    }
+  });
+  await projectModel.deleteOne({ _id: projectId });
+  await userProjectModel.deleteMany({ projectId });
+  return res.json({ message: "Project deleted successfully" });
 };

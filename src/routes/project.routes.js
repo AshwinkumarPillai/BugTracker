@@ -9,5 +9,6 @@ router.post("/addbuddy", auth.checkToken, projectController.addBuddy);
 router.post("/getAllUsers", auth.checkToken, projectController.getAllUsers);
 router.get("/verify-add", projectController.verifybuddy);
 router.post("/removeBuddy", auth.checkToken, projectController.removeBuddy);
+router.post("/delete", auth.checkToken, projectController.deleteProject);
 
 module.exports = router;
