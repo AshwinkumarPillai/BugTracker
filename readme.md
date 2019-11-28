@@ -1,8 +1,10 @@
 # Bug Tracker
 
-## About the project 
+## About the project
+
 REST API - Bug Tracker
-Devs can: 
+Devs can:
+
 1. Create Project(s)
 2. Add Team member
 3. Assign previliges to the added members
@@ -11,8 +13,11 @@ Devs can:
 6. Watch updates on the bug via email notifications.
 7. Submit screen-shots and solution
 
-## Features : 
- 1. Email Notification and verification. - NodeMailer
- 2. JWT authentication. - jsonwebtoken
+## Features :
+
+1.  Email Notification and verification. - NodeMailer
+2.  JWT authentication. - jsonwebtoken
 
 ### Please report any bugs if you find any 😉.
+
+#### If you see commit stating "Minor bug fix", they are insignificat changes hence not much is specified in logs.
