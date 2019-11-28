@@ -5,13 +5,14 @@ import bugModel from "../models/bug";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
+import mail from "../services/mailService";
 
 module.exports.login = async (req, res) => {
   const email = req.body.email;
   const secret = "sampleTest";
   try {
     let user = await userModel.findOne({ email });
-    if (!user) return res.json({ message: "Email Not found" });
+    if (!user) return res.json({ message: "Invalid Email or password" });
     let isEqual = bcrypt.compareSync(req.body.password, user.password);
     if (isEqual) {
       let token = jwt.sign(
@@ -22,6 +23,7 @@ module.exports.login = async (req, res) => {
       );
       await user.save();
       let userdata = {
+        _id: user._id,
         name: user.name,
         email: user.email,
         designation: user.designation,
@@ -32,7 +34,7 @@ module.exports.login = async (req, res) => {
       };
       return res.json({ message: "Logged in Succesfully.Hello " + user.name, token, userdata });
     }
-    return res.json({ message: "Incorrect password" });
+    return res.json({ message: "Invalid Email or password" });
   } catch (err) {
     console.log(err);
   }
@@ -168,4 +170,20 @@ module.exports.viewProfile = async (req, res) => {
   let user = await userModel.findById(userId).select("-password -contact");
   if (!user) return res.json({ status: 300 });
   return res.json({ user, status: 200 });
+};
+
+module.exports.forgotPassword = async (req, res) => {
+  const email = req.body.email;
+  let user = await userModel.findOne({ email });
+  if (user) {
+    const from = "";
+    const to = email;
+    const subject = "Request to change password";
+    const link = "";
+    const html =
+      "Click on the link to change your password.<br><a href=" +
+      link +
+      ">Click here to verify</a><br><b>Note: please donot share this link with anyone!</b>";
+    mail.sendMailService(from, to, subject, html);
+  }
 };

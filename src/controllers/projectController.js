@@ -68,7 +68,7 @@ module.exports.addBuddy = async (req, res) => {
     if (exists) return res.json({ message: "This user is already present in your project" });
 
     let checkuser = await userModel.findById(newBuddy);
-    if (!checkuser) return res.json("No User Found");
+    if (!checkuser) return res.json({ message: "No user Found", status: 404 });
 
     let userProj = await userProjectModel.findOne({ userId, projectId });
     if (!userProj) return res.json("Invalid request! Cannot get User-Project");
