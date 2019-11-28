@@ -28,7 +28,7 @@ module.exports.createBug = async (req, res) => {
   const status = req.body.status;
   const priority = req.body.priority;
   const screenShot = req.body.screenShot;
-  const deadline = req.body.deadline;
+  let deadline = req.body.deadline;
   let getassignedDev = req.body.assignedDev;
   const createdBy = user._id;
   const watch_creator = req.body.watch;
@@ -49,6 +49,8 @@ module.exports.createBug = async (req, res) => {
     // if (!userProject) return res.json({ message: "You are not a part of this project" });
     let project = await projectModel.findById(projectId);
     if (!project) return res.json("No project found");
+
+    if (!deadline) deadline = "0000-01-01";
 
     const newBug = new BugModel({
       title,
