@@ -208,6 +208,7 @@ module.exports.changePassInDb = async (req, res) => {
   if (user) {
     let password = req.body.password;
     if (/^\s*$/.test(password)) {
+    } else {
       const hashedPassword = bcrypt.hashSync(password, 12);
       user.password = hashedPassword;
       await user.save();
