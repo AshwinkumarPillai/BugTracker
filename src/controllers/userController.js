@@ -173,17 +173,46 @@ module.exports.viewProfile = async (req, res) => {
 };
 
 module.exports.forgotPassword = async (req, res) => {
+  console.log("FGpassCalled");
   const email = req.body.email;
   let user = await userModel.findOne({ email });
   if (user) {
-    const from = "";
+    const from = "BugTracker";
     const to = email;
     const subject = "Request to change password";
-    const link = "";
+    const link = "http://" + req.get("host") + "/user" + "/change-pass?id=" + user._id;
     const html =
       "Click on the link to change your password.<br><a href=" +
       link +
-      ">Click here to verify</a><br><b>Note: please donot share this link with anyone!</b>";
+      ">Click here to change your password</a><br><b>Note: please donot share this link with anyone!</b>";
     mail.sendMailService(from, to, subject, html);
   }
+  res.json({ message: "A link has been provided to your email" });
+};
+
+module.exports.changePass = async (req, res) => {
+  let user;
+  const id = req.query.id;
+  try {
+    user = await userModel.findById(id);
+  } catch (err) {
+    return res.json("404");
+  }
+  if (!user) return res.send("404");
+  res.render("fgpass", { id });
+};
+
+module.exports.changePassInDb = async (req, res) => {
+  let userId = req.body.userId;
+  let user = await userModel.findById(userId);
+  if (user) {
+    let password = req.body.password;
+    if (/^\s*$/.test(password)) {
+      const hashedPassword = bcrypt.hashSync(password, 12);
+      user.password = hashedPassword;
+      await user.save();
+    }
+  }
+  res.redirect(301, "https://ash-bug-tracker.netlify.com/login");
+  // res.redirect(301, "http://localhost:4200/login");
 };

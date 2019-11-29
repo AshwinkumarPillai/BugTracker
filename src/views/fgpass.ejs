@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Password Reset</title>
+
+    <style>
+        form {
+            margin: 20vh;
+        }
+
+        input,
+        button {
+            width: 70vw;
+            padding: 10px;
+        }
+
+        button {
+            background: #8854d0;
+            color: white;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        button:hover {
+            background: white !important;
+            color: black !important;
+        }
+    </style>
+</head>
+
+<body>
+    <form action="/user/dbchangepass" method="POST">
+        <input type="hidden" name="userId" id="userId" value="<%= id%>">
+        <input type="password" name="password" id="" placeholder="New password">
+        <br><br>
+        <!-- <input type="password" name="" id="" placeholder="New password again"><br> -->
+        <button type="submit" id="submitbtn">Change Password</button>
+    </form>
+
+</body>
+
+</html>

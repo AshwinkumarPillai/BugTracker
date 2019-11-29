@@ -117,6 +117,7 @@ module.exports.verifybuddy = async (req, res) => {
     if (!userProj) return res.json("Invalid activation Id");
     userProj.active = 1;
     let updateUp = await userProj.save();
+    console.log(updateUp);
     console.log("User Activation Successfull");
     return res.json("Verification Successful!");
   } catch (error) {

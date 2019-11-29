@@ -6,8 +6,11 @@ import projectRoutes from "../src/routes/project.routes";
 const cors = require("cors");
 
 const server = express();
+server.use(bodyParser.urlencoded({ extended: false }));
 server.use(bodyParser.json());
 server.use(cors());
+server.set("view engine", "ejs");
+server.set("views", "./src/views");
 server.use("/project", projectRoutes);
 server.use("/user", userRoutes);
 server.use("/bug", bugRoutes);
