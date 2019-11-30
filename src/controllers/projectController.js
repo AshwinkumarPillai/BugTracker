@@ -177,14 +177,35 @@ module.exports.removeBuddy = async (req, res) => {
 };
 
 module.exports.deleteProject = async (req, res, next) => {
+  const user = req.user;
+
   const projectId = req.body.projectId;
   let project = await projectModel.findById(projectId);
-  await bugModel.deleteMany({
-    _id: {
-      $in: project.bugAssigned
-    }
-  });
-  await projectModel.deleteOne({ _id: projectId });
-  await userProjectModel.deleteMany({ projectId });
-  return res.json({ message: "Project deleted successfully" });
+
+  if (JSON.stringify(project.superAdmin) == JSON.stringify(user._id)) {
+    await bugModel.deleteMany({
+      _id: {
+        $in: project.bugAssigned
+      }
+    });
+    await projectModel.deleteOne({ _id: projectId });
+    await userProjectModel.deleteMany({ projectId });
+    return res.json({ message: "Project deleted successfully", statusCode: 200 });
+  } else {
+    let inbox = new inboxModel({
+      userId: project.superAdmin,
+      projectId: project._id,
+      title: "Security alert",
+      message: user.name + " tried to delete your project:  " + project.title,
+      type: 5, // 1-proj, 2-bug-assigned ,3-bug-created/edit, 4-misc,5-error/security
+      sourceName: user.name, //Name
+      projName: project.title,
+      read: 0
+    });
+    await user.save();
+    return res.json({
+      message: "You are not authorized to perform this action",
+      statusCode: 307
+    });
+  }
 };

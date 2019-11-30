@@ -20,13 +20,17 @@ const inboxSchema = new Schema(
       required: true
     },
     message: String,
-    type: Number, // 1-proj, 2-bug-assigned ,3-bug-created/edit, 4-misc
+    type: Number, // 1-proj, 2-bug-assigned ,3-bug-created/edit, 4-misc,5-error/security
     sourceName: String, //Name
     projName: String,
     read: {
       type: Number,
       default: 0,
       required: true
+    },
+    newMessage: {
+      type: Boolean,
+      default: true
     }
   },
   { timestamps: true }

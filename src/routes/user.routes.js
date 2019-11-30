@@ -14,7 +14,7 @@ router.post("/viewProfile", auth.checkToken, userController.viewProfile);
 router.post("/forgotPass", userController.forgotPassword);
 router.get("/change-pass", userController.changePass);
 router.post("/dbchangepass", userController.changePassInDb);
-router.post("/getInbox", userController.getInbox);
+router.post("/getInbox", auth.checkToken, userController.getInbox);
 router.get("/mark-as-read", auth.checkToken, userController.markAsRead);
 
 module.exports = router;
