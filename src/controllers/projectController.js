@@ -2,6 +2,7 @@ import projectModel from "../models/project";
 import userProjectModel from "../models/UserProject";
 import userModel from "../models/user";
 import bugModel from "../models/bug";
+import inboxModel from "../models/inbox";
 import mongoose from "mongoose";
 import mail from "../services/mailService";
 
@@ -57,7 +58,7 @@ module.exports.addBuddy = async (req, res) => {
   const user = req.user;
   const userId = user._id;
   const projectId = req.body.projectId;
-  const adminEmail = user.email;
+  const projectName = req.body.projectName;
   const adminName = user.name;
   const newBuddy = req.body.newId;
   const role = req.body.role;
@@ -84,17 +85,20 @@ module.exports.addBuddy = async (req, res) => {
       });
 
       let BuddyAdded = await newUserProject.save();
-      if (!BuddyAdded) return res.json("Error in creating new UserProj");
-      const from = '"' + adminName + '" ' + "<" + adminEmail + ">";
-      const to = checkuser.email;
-      const subject = "Permission to be added to a new Project";
-      const link = "http://" + req.get("host") + "/project" + "/verify-add?id=" + to + "BIScHQAekqkD7jMFlpWz";
-      const html =
-        adminName +
-        " wants you on his team. <br> Please Click on the link to verify your email.<br><a href=" +
-        link +
-        ">Click here to verify</a><br><b>Note: please donot share this link with anyone!</b>";
-      mail.sendMailService(from, to, subject, html);
+      if (!BuddyAdded) return res.json({ message: "Error in creating new UserProj" });
+
+      let inbox = new inboxModel({
+        userId: BuddyAdded.userId,
+        projectId,
+        title: "Permission to accompany in project.",
+        message: adminName + " wants you to be a part of a project entitled " + projectName,
+        type: 1, // 1-proj, 2-bug-assigned ,3-bug-created/edit, 4-misc
+        sourceName: adminName, //Name
+        projName: projectName,
+        read: 0
+      });
+
+      await inbox.save();
       return res.json({ BuddyAdded, newUserProject });
     } else {
       let newuserProj = await userProjectModel.find({ projectId: userProj.projectId, userId: newBuddy });
@@ -109,20 +113,39 @@ module.exports.addBuddy = async (req, res) => {
   }
 };
 
-module.exports.verifybuddy = async (req, res) => {
-  try {
-    const activationId = req.query.id;
-    console.log(activationId);
-    let userProj = await userProjectModel.findOne({ activationId });
-    if (!userProj) return res.json("Invalid activation Id");
-    userProj.active = 1;
-    let updateUp = await userProj.save();
-    console.log(updateUp);
-    console.log("User Activation Successfull");
-    return res.json("Verification Successful!");
-  } catch (error) {
-    console.log(error);
-  }
+// module.exports.verifybuddy = async (req, res) => {
+//   try {
+//     const activationId = req.query.id;
+//     console.log(activationId);
+//     let userProj = await userProjectModel.findOne({ activationId });
+//     if (!userProj) return res.json("Invalid activation Id");
+//     userProj.active = 1;
+//     let updateUp = await userProj.save();
+//     console.log(updateUp);
+//     console.log("User Activation Successfull");
+//     return res.json("Verification Successful!");
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
+module.exports.approveProject = async (req, res) => {
+  const user = req.user;
+  const projectId = req.body.projectId;
+
+  let userProj = await userProjectModel.findOne({ userId: user._id, projectId });
+  if (!userProj) return res.json({ message: "Unexpected Error" });
+  userProj.active = 1;
+  await userProj.save();
+  return res.json({ message: "Done" });
+};
+
+module.exports.rejectProject = async (req, res) => {
+  const user = req.user;
+  const projectId = req.body.projectId;
+
+  await userProjectModel.deleteOne({ userId: user._id, projectId });
+  return res.json({ message: "Rejected project" });
 };
 
 module.exports.removeBuddy = async (req, res) => {

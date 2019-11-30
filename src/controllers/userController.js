@@ -1,6 +1,7 @@
 import userModel from "../models/user";
 import projectModel from "../models/project";
 import userProjectModel from "../models/UserProject";
+import inboxModel from "../models/inbox";
 import bugModel from "../models/bug";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
@@ -142,7 +143,7 @@ module.exports.getOneProject = async (req, res) => {
   const project = await projectModel.findById(projectId).select("title bugAssigned");
 
   const userProject = await userProjectModel
-    .find({ projectId })
+    .find({ projectId, active: 1 })
     .select("userId role -_id")
     .populate("userId", "name email designation")
     .populate("solvedBy", "name email designation")
@@ -191,6 +192,7 @@ module.exports.forgotPassword = async (req, res) => {
 };
 
 module.exports.changePass = async (req, res) => {
+  console.log("Change pass called");
   let user;
   const id = req.query.id;
   try {
@@ -199,6 +201,7 @@ module.exports.changePass = async (req, res) => {
     return res.json("404");
   }
   if (!user) return res.send("404");
+  console.log("sending Page");
   res.render("fgpass", { id });
 };
 
@@ -216,4 +219,21 @@ module.exports.changePassInDb = async (req, res) => {
   }
   res.redirect(301, "https://ash-bug-tracker.netlify.com/login");
   // res.redirect(301, "http://localhost:4200/login");
+};
+
+module.exports.getInbox = async (req, res) => {
+  const user = req.user;
+  let inbox = await inboxModel.find({ userId: user._id });
+  return res.json({ inbox });
+};
+
+module.exports.markAsRead = async (req, res) => {
+  const user = req.user;
+  const inboxId = req.body.inboxId;
+
+  let inbox = await inboxModel.findOne({ _id: inboxId, userId: user._id });
+  if (!inbox) return res.json({ message: "Unexpected error" });
+  inbox.read = 1;
+  await inbox.save();
+  return res.json({ message: "Successfull" });
 };
