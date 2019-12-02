@@ -66,7 +66,7 @@ module.exports.addBuddy = async (req, res) => {
 
   try {
     let exists = await userProjectModel.findOne({ userId: newBuddy, projectId });
-    if (exists) {
+    if (exists && isNew) {
       if (exists.active) {
         return res.json({ message: "This user is already present in your project" });
       } else {
@@ -108,8 +108,11 @@ module.exports.addBuddy = async (req, res) => {
       await inbox.save();
       return res.json({ BuddyAdded, newUserProject });
     } else {
-      let newuserProj = await userProjectModel.find({ projectId: userProj.projectId, userId: newBuddy });
+      let newuserProj = await userProjectModel.findOne({ projectId: userProj.projectId, userId: newBuddy });
       if (!newuserProj) return res.json("Invalid request! Cannot get User-Project");
+      if (newuserProj.role == "owner") {
+        return res.json({ message: "You are not authorized to perform this action" });
+      }
       newuserProj.role = role;
       let saveRole = newuserProj.save();
       if (!saveRole) return res.json("Error in saving role");
