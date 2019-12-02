@@ -66,7 +66,13 @@ module.exports.addBuddy = async (req, res) => {
 
   try {
     let exists = await userProjectModel.findOne({ userId: newBuddy, projectId });
-    if (exists) return res.json({ message: "This user is already present in your project" });
+    if (exists) {
+      if (exists.active) {
+        return res.json({ message: "This user is already present in your project" });
+      } else {
+        return res.json({ message: "Waiting for approval" });
+      }
+    }
 
     let checkuser = await userModel.findById(newBuddy);
     if (!checkuser) return res.json({ message: "No user Found", status: 404 });
@@ -94,6 +100,7 @@ module.exports.addBuddy = async (req, res) => {
         message: adminName + " wants you to be a part of a project entitled " + projectName,
         type: 1, // 1-proj, 2-bug-assigned ,3-bug-created/edit, 4-misc
         sourceName: adminName, //Name
+        sourceId: userId,
         projName: projectName,
         read: 0
       });
@@ -132,48 +139,78 @@ module.exports.addBuddy = async (req, res) => {
 module.exports.approveProject = async (req, res) => {
   const user = req.user;
   const projectId = req.body.projectId;
+  const userId = req.body.recieverId;
+  const inboxId = req.body.inboxId;
+  const projectTitle = req.body.projectTitle;
 
   let userProj = await userProjectModel.findOne({ userId: user._id, projectId });
   if (!userProj) return res.json({ message: "Unexpected Error" });
   userProj.active = 1;
   await userProj.save();
-  return res.json({ message: "Done" });
+  let inbox = new inboxModel({
+    userId,
+    projectId,
+    title: "Invitation accepted",
+    message: user.name + " accepted your offer to join project " + projectTitle,
+    type: 4, // 1-proj, 2-bug-assigned ,3-bug/edit, 4-approved,5-error/security
+    sourceName: user.name, //Name
+    sourceId: user._id,
+    projName: projectTitle,
+    read: 0
+  });
+  await inbox.save();
+  await inboxModel.findByIdAndRemove(inboxId);
+  return res.json({ message: "Invitation accepted" });
 };
 
 module.exports.rejectProject = async (req, res) => {
+  console.log("reject Project called");
   const user = req.user;
   const projectId = req.body.projectId;
+  const userId = req.body.recieverId;
+  const inboxId = req.body.inboxId;
+  const projectTitle = req.body.projectTitle;
 
-  await userProjectModel.deleteOne({ userId: user._id, projectId });
+  await userProjectModel.findOneAndRemove({ userId: user._id, projectId });
+  let inbox = new inboxModel({
+    userId,
+    projectId,
+    title: "Invitation rejected",
+    message: user.name + " rejected your offer to join project " + projectTitle,
+    type: 6, // 1-proj, 2-bug-assigned ,3-bug-created/edit, 4-misc,5-error/security
+    sourceName: user.name, //Name
+    sourceId: user._id,
+    projName: projectTitle,
+    read: 0
+  });
+  await inbox.save();
+  await inboxModel.findByIdAndRemove(inboxId);
   return res.json({ message: "Rejected project" });
 };
 
 module.exports.removeBuddy = async (req, res) => {
-  const user = req.user;
-  const adminId = user._id;
-  const adminName = user.name;
-  const adminEmail = user.email;
-  const userId = req.body.userId;
-  const projectId = req.body.projectId;
-
-  try {
-    let adminProject = await userProjectModel.findOne({ userId: adminId, projectId });
-    if (adminProject.role === "dev") return res.json("You are not authorized to perform this action. Only admins are allowed");
-    let devProject = await userProjectModel.findOne({ userId, projectId });
-    if (devProject.role === "admin") return res.json("You are not authorized to perform this action. The guy is also a admin");
-    let userProject = await userProjectModel.findOneAndRemove({ userId, projectId });
-
-    let buddy = await userModel.findById(userId);
-    const from = '"' + adminName + '" ' + "<" + adminEmail + ">";
-    const to = buddy.email;
-    const subject = "Removal From Project";
-    const html = "We are Sorry to Say, but we decided to remove you  from our Project";
-    mail.sendMailService(from, to, subject, html);
-
-    return res.json(userProject);
-  } catch (error) {
-    console.log(error);
-  }
+  // const user = req.user;
+  // const adminId = user._id;
+  // const adminName = user.name;
+  // const adminEmail = user.email;
+  // const userId = req.body.userId;
+  // const projectId = req.body.projectId;
+  // try {
+  //   let adminProject = await userProjectModel.findOne({ userId: adminId, projectId });
+  //   if (adminProject.role === "dev") return res.json("You are not authorized to perform this action. Only admins are allowed");
+  //   let devProject = await userProjectModel.findOne({ userId, projectId });
+  //   if (devProject.role === "admin") return res.json("You are not authorized to perform this action. The guy is also a admin");
+  //   let userProject = await userProjectModel.findOneAndRemove({ userId, projectId });
+  //   let buddy = await userModel.findById(userId);
+  //   const from = '"' + adminName + '" ' + "<" + adminEmail + ">";
+  //   const to = buddy.email;
+  //   const subject = "Removal From Project";
+  //   const html = "We are Sorry to Say, but we decided to remove you  from our Project";
+  //   mail.sendMailService(from, to, subject, html);
+  //   return res.json(userProject);
+  // } catch (error) {
+  //   console.log(error);
+  // }
 };
 
 module.exports.deleteProject = async (req, res, next) => {
@@ -188,8 +225,9 @@ module.exports.deleteProject = async (req, res, next) => {
         $in: project.bugAssigned
       }
     });
-    await projectModel.deleteOne({ _id: projectId });
-    await userProjectModel.deleteMany({ projectId });
+    await projectModel.findByIdAndRemove(projectId);
+    let user = await userProjectModel.deleteMany({ projectId });
+    console.log(user);
     return res.json({ message: "Project deleted successfully", statusCode: 200 });
   } else {
     let inbox = new inboxModel({
@@ -202,7 +240,7 @@ module.exports.deleteProject = async (req, res, next) => {
       projName: project.title,
       read: 0
     });
-    await user.save();
+    await inbox.save();
     return res.json({
       message: "You are not authorized to perform this action",
       statusCode: 307

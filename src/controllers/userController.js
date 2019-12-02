@@ -223,17 +223,40 @@ module.exports.changePassInDb = async (req, res) => {
 
 module.exports.getInbox = async (req, res) => {
   const user = req.user;
-  let inbox = await inboxModel.find({ userId: user._id });
+  let inbox = await inboxModel.find({ userId: user._id }).sort({ createdAt: -1 });
   return res.json({ inbox });
+};
+
+module.exports.getNoOfinbox = async (req, res) => {
+  const user = req.user;
+  let inbox = await inboxModel.countDocuments({ userId: user._id, newMessage: true });
+  return res.json({ num: inbox });
 };
 
 module.exports.markAsRead = async (req, res) => {
   const user = req.user;
   const inboxId = req.body.inboxId;
+  const deleteM = req.body.deleteM;
 
-  let inbox = await inboxModel.findOne({ _id: inboxId, userId: user._id });
-  if (!inbox) return res.json({ message: "Unexpected error" });
-  inbox.read = 1;
-  await inbox.save();
-  return res.json({ message: "Successfull" });
+  let inbox;
+  try {
+    if (deleteM) {
+      await inboxModel.findByIdAndRemove(inboxId);
+      return res.json({ message: "message deleted successfully" });
+    } else {
+      inbox = await inboxModel.findOne({ _id: inboxId, userId: user._id });
+      if (!inbox) return res.json({ message: "Unexpected error" });
+      inbox.read = 1;
+      await inbox.save();
+      return res.json({ message: "Successfull" });
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+module.exports.markasNotNew = async (req, res) => {
+  const user = req.user;
+  let inbox = await inboxModel.updateMany({ userId: user._id }, { $set: { newMessage: false } });
+  return res.json({ message: "Updated" });
 };

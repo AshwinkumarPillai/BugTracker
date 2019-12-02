@@ -23,6 +23,7 @@ module.exports.getAll = async (req, res) => {
 
 module.exports.createBug = async (req, res) => {
   const user = req.user;
+  const sourceId = user._id;
   const projectId = req.body.projectId;
   const title = req.body.title;
   const subtitle = req.body.subtitle;
@@ -80,10 +81,11 @@ module.exports.createBug = async (req, res) => {
         userId: user._id,
         projectId,
         bugId: bug._id,
-        title: "New bug Created",
-        message: "A new bug was created by " + creatorName + " in project " + project.title,
-        type: 3, // 1-proj, 2-bug-assigned ,3-bug-created/edit, 4-misc
+        title: "New bug assigned",
+        message: "A new bug was created and assigned to you by " + creatorName + " in project " + project.title,
+        type: 2, // 1-proj, 2-bug-assigned ,3-bug-created/edit, 4-misc
         sourceName: creatorName, //Name
+        sourceId,
         projName: project.title,
         read: 0
       });
@@ -119,6 +121,7 @@ module.exports.watchBug = async (req, res) => {
 
 module.exports.edit = async (req, res) => {
   const user = req.user;
+  const sourceId = user._id;
   const bugId = req.body.bugId;
   const title = req.body.title;
   const subtitle = req.body.subtitle;
@@ -140,7 +143,7 @@ module.exports.edit = async (req, res) => {
     bug.deadline = deadline;
     let upBug = await bug.save();
     if (!upBug) return res.json("Error while updating bug");
-    watchMail(upBug._id, projectId, "Bug update", "Some changes were made to " + upBug.title, 3, creatorName, projectTitle);
+    watchMail(upBug._id, projectId, "Bug update", "Some changes were made to " + upBug.title, 3, creatorName, sourceId, projectTitle);
     return res.json({ upBug });
   } catch (err) {
     console.log(err);
@@ -157,7 +160,7 @@ module.exports.archive = async (req, res) => {
     let bug = await BugModel.findById(bugId);
     bug.archived = 1;
     let upBug = await bug.save();
-    watchMail(upBug._id, projectId, "Bug archived", user.name + " archived the bug " + upBug.title, 3, user.name, projectTitle);
+    watchMail(upBug._id, projectId, "Bug archived", user.name + " archived the bug " + upBug.title, 3, user.name, user._id, projectTitle);
     return res.json({ upBug });
   } catch (err) {
     console.log(err);
@@ -178,7 +181,16 @@ module.exports.solution = async (req, res) => {
     bug.solution = solution;
     bug.solvedBy = userId;
     let upBug = await bug.save();
-    watchMail(upBug._id, projectId, "Bug solved", "Bug " + upBug.title + " was solved by " + user.name, 3, user.name, projectTitle);
+    watchMail(
+      upBug._id,
+      projectId,
+      "Bug solved",
+      "Bug " + upBug.title + " was solved by " + user.name,
+      3,
+      user.name,
+      user._id,
+      projectTitle
+    );
     return res.json({ upBug });
   } catch (err) {
     console.log(err);
@@ -187,6 +199,8 @@ module.exports.solution = async (req, res) => {
 
 module.exports.AssignDev = async (req, res) => {
   const user = req.user;
+  const sourceId = user._id;
+  const sourceName = user.name;
   const bugId = req.body.bugId;
   const dev = req.body.dev;
   const projectId = req.body.projectId;
@@ -217,9 +231,10 @@ module.exports.AssignDev = async (req, res) => {
         projectId,
         bugId: updatedBug._id,
         title: "Bug assigned",
-        message: "A bug was assigned to you by " + user.name + " in project " + projectTitle,
-        type, // 1-proj, 2-bug-assigned ,3-bug-created/edit, 4-misc
-        sourceName: user.name, //Name
+        message: "A bug was assigned to you by " + sourceName + " in project " + projectTitle,
+        type: 2, // 1-proj, 2-bug-assigned ,3-bug-created/edit, 4-misc
+        sourceName, //Name,
+        sourceId,
         projName: projectTitle,
         read: 0
       });
@@ -232,42 +247,7 @@ module.exports.AssignDev = async (req, res) => {
   }
 };
 
-module.exports.removeDev = async (req, res) => {
-  const user = req.user;
-  const bugId = req.body.bugId;
-  const email = user.email;
-  const dev = req.body.dev;
-
-  try {
-    let bug = await BugModel.findById(bugId);
-    // dev =
-    // bug.assignedDev.forEach(element => {
-
-    // })
-
-    // let updatedBug = await bug.save();
-
-    // let users = await userModel.find({
-    //   _id: {
-    //     $in: dev
-    //   }
-    // });
-    // users.forEach(obj => {
-    //   obj.password = "";
-    // });
-    // let from = email;
-    // let to = users.map(obj => obj.email);
-    // let subject = "New bug assigned";
-    // let html = "You have been assigned a bug<br>Please check your project to know more";
-    // mail.sendMailService(from, to, subject, html);
-    return res.json({ message: "hello" });
-    // return res.json({ users, updatedBug });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-async function watchMail(bugId, projectId, title, message, type, creatorName, projectTitle) {
+async function watchMail(bugId, projectId, title, message, type, creatorName, sourceId, projectTitle) {
   let bug = await BugModel.findById(bugId);
   let devs = bug.assignedDev.map(obj => {
     if (obj.watch == 1) return obj.userId;
@@ -289,6 +269,7 @@ async function watchMail(bugId, projectId, title, message, type, creatorName, pr
       message,
       type, // 1-proj, 2-bug-assigned ,3-bug-created/edit, 4-misc
       sourceName: creatorName, //Name
+      sourceId,
       projName: projectTitle,
       read: 0
     });

@@ -11,6 +11,5 @@ router.post("/watch", auth.checkToken, BugController.watchBug);
 router.post("/archive", auth.checkToken, BugController.archive);
 router.post("/solution", auth.checkToken, BugController.solution);
 router.post("/assignDev", auth.checkToken, BugController.AssignDev);
-router.post("/removeDev", auth.checkToken, BugController.removeDev);
 
 module.exports = router;

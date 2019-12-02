@@ -15,6 +15,8 @@ router.post("/forgotPass", userController.forgotPassword);
 router.get("/change-pass", userController.changePass);
 router.post("/dbchangepass", userController.changePassInDb);
 router.post("/getInbox", auth.checkToken, userController.getInbox);
-router.get("/mark-as-read", auth.checkToken, userController.markAsRead);
+router.post("/mark-as-read", auth.checkToken, userController.markAsRead);
+router.post("/markasNotNew", auth.checkToken, userController.markasNotNew);
+router.post("/getNoOfinbox", auth.checkToken, userController.getNoOfinbox);
 
 module.exports = router;

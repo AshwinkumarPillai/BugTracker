@@ -20,8 +20,12 @@ const inboxSchema = new Schema(
       required: true
     },
     message: String,
-    type: Number, // 1-proj, 2-bug-assigned ,3-bug-created/edit, 4-misc,5-error/security
+    type: Number, // 1-proj, 2-bug-assigned ,3-bug-edit, 4-approved,5-error/security,6-rejected
     sourceName: String, //Name
+    sourceId: {
+      type: ObjectId,
+      ref: "user"
+    },
     projName: String,
     read: {
       type: Number,
