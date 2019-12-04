@@ -107,11 +107,18 @@ module.exports.watchBug = async (req, res) => {
   try {
     let bug = await BugModel.findById(bugId);
     if (!bug) return res.json({ message: "Bug not found" });
-    bug.assignedDev.forEach(dev => {
-      if (dev.userId == userId) {
-        dev.watch = 1;
-      }
-    });
+    for(let i=0;i<bug.assignedDev.length;i++){
+     if (JSON.stringify(bug.assignedDev[i].userId) == JSON.stringify(userId)){
+      bug.assignedDev[i].watch = 1;
+      console.log("match Found");
+      break;
+     } 
+    }
+    // bug.assignedDev.forEach(dev => {
+    //   if (JSON.stringify(dev.userId) == JSON.stringify(userId)) {
+    //     dev.watch = 1;
+    //   }
+    // });
     let updatedBug = await bug.save();
     return res.json({ updatedBug });
   } catch (err) {

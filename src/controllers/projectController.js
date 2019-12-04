@@ -192,28 +192,36 @@ module.exports.rejectProject = async (req, res) => {
 };
 
 module.exports.removeBuddy = async (req, res) => {
-  // const user = req.user;
-  // const adminId = user._id;
-  // const adminName = user.name;
-  // const adminEmail = user.email;
-  // const userId = req.body.userId;
-  // const projectId = req.body.projectId;
-  // try {
-  //   let adminProject = await userProjectModel.findOne({ userId: adminId, projectId });
-  //   if (adminProject.role === "dev") return res.json("You are not authorized to perform this action. Only admins are allowed");
-  //   let devProject = await userProjectModel.findOne({ userId, projectId });
-  //   if (devProject.role === "admin") return res.json("You are not authorized to perform this action. The guy is also a admin");
-  //   let userProject = await userProjectModel.findOneAndRemove({ userId, projectId });
-  //   let buddy = await userModel.findById(userId);
-  //   const from = '"' + adminName + '" ' + "<" + adminEmail + ">";
-  //   const to = buddy.email;
-  //   const subject = "Removal From Project";
-  //   const html = "We are Sorry to Say, but we decided to remove you  from our Project";
-  //   mail.sendMailService(from, to, subject, html);
-  //   return res.json(userProject);
-  // } catch (error) {
-  //   console.log(error);
-  // }
+  const user = req.user;
+  const adminName = user.name;
+  const remove = req.body.remove;
+  const projectId = req.body.projectId;
+  let userId;
+  let inbox;
+
+  if (remove) {
+    userId = req.body.userId;
+    let adminId = user._id;
+    let adminProj = await userProjectModel.findOne({ userId: adminId, projectId });
+    if (!adminProj) return res.json({ message: "No project Found!" });
+    if (adminProj.role == "dev") return res.json({ message: "You are not authorized to perform this action" });
+    inbox = new inboxModel({
+      userId,
+      projectId,
+      title: "Removal from project",
+      message: "Sorry we decided to remove you from our project",
+      type: 5, // 1-proj, 2-bug-assigned ,3-bug-edit, 4-approved,5-error/security,6-rejected
+      sourceName: adminName, //Name
+      sourceId: adminId,
+      projName: String,
+      read: 0
+    });
+  } else {
+    userId = user._id;
+  }
+  await userProjectModel.findOneAndRemove({ userId, projectId });
+  await inbox.save();
+  return res.json({ message: "Removed successfully" });
 };
 
 module.exports.deleteProject = async (req, res, next) => {
