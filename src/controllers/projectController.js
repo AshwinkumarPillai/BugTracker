@@ -4,7 +4,7 @@ import userModel from "../models/user";
 import bugModel from "../models/bug";
 import inboxModel from "../models/inbox";
 import mongoose from "mongoose";
-import mail from "../services/mailService";
+import removeBuddyfrombugs from "../events/inboxDispatcher";
 
 module.exports.createProject = (req, res) => {
   const user = req.user;
@@ -205,6 +205,7 @@ module.exports.removeBuddy = async (req, res) => {
     let adminProj = await userProjectModel.findOne({ userId: adminId, projectId });
     if (!adminProj) return res.json({ message: "No project Found!" });
     if (adminProj.role == "dev") return res.json({ message: "You are not authorized to perform this action" });
+
     inbox = new inboxModel({
       userId,
       projectId,
@@ -219,8 +220,15 @@ module.exports.removeBuddy = async (req, res) => {
   } else {
     userId = user._id;
   }
+  let tbduser = await userProjectModel({ userId, projectId });
+  if (tbduser.role == "owner") return res.json({ message: "Can't remove the owner" });
   await userProjectModel.findOneAndRemove({ userId, projectId });
   await inbox.save();
+  let data = {
+    projectId,
+    removalId: userId
+  };
+  removeBuddyfrombugs.emit("removefrombugs", data);
   return res.json({ message: "Removed successfully" });
 };
 
