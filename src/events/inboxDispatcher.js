@@ -41,11 +41,11 @@ eventEmitter.on("removefrombugs", async data => {
   let project;
   try {
     project = await projectModel.findById(projectId);
-    project.bugAssigned.forEach(bugId => {
-        let bug = await BugModel.findById(bugId);
-        bug.assignedDev.filter(user => JSON.stringify(user.userId) !== JSON.stringify(userId));
-        await bug.save(); 
-    })
+    project.bugAssigned.forEach(async bugId => {
+      let bug = await BugModel.findById(bugId);
+      bug.assignedDev.filter(user => JSON.stringify(user.userId) !== JSON.stringify(userId));
+      await bug.save();
+    });
   } catch (error) {
     console.log(error);
   }
