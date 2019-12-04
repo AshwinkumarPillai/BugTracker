@@ -43,11 +43,24 @@ eventEmitter.on("removefrombugs", async data => {
     project = await projectModel.findById(projectId);
     project.bugAssigned.forEach(async bugId => {
       let bug = await BugModel.findById(bugId);
-      bug.assignedDev.filter(user => JSON.stringify(user.userId) !== JSON.stringify(userId));
+      let newAssignDev = bug.assignedDev.filter(user => {
+        return JSON.stringify(user.userId) !== JSON.stringify(userId);
+      });
+      bug.assignedDev = newAssignDev;
       await bug.save();
     });
   } catch (error) {
     console.log(error);
+  }
+});
+
+eventEmitter.on("removeAllbugs", async bugArray => {
+  try {
+    bugArray.forEach(async bugId => {
+      await BugModel.findByIdAndRemove(bugId);
+    });
+  } catch (error) {
+    console.log("error: " + error);
   }
 });
 

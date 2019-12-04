@@ -123,22 +123,6 @@ module.exports.addBuddy = async (req, res) => {
   }
 };
 
-// module.exports.verifybuddy = async (req, res) => {
-//   try {
-//     const activationId = req.query.id;
-//     console.log(activationId);
-//     let userProj = await userProjectModel.findOne({ activationId });
-//     if (!userProj) return res.json("Invalid activation Id");
-//     userProj.active = 1;
-//     let updateUp = await userProj.save();
-//     console.log(updateUp);
-//     console.log("User Activation Successfull");
-//     return res.json("Verification Successful!");
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
 module.exports.approveProject = async (req, res) => {
   const user = req.user;
   const projectId = req.body.projectId;
@@ -196,8 +180,10 @@ module.exports.removeBuddy = async (req, res) => {
   const adminName = user.name;
   const remove = req.body.remove;
   const projectId = req.body.projectId;
+  let projName = req.body.projectName;
   let userId;
   let inbox;
+  let projectMembers;
 
   if (remove) {
     userId = req.body.userId;
@@ -214,16 +200,24 @@ module.exports.removeBuddy = async (req, res) => {
       type: 5, // 1-proj, 2-bug-assigned ,3-bug-edit, 4-approved,5-error/security,6-rejected
       sourceName: adminName, //Name
       sourceId: adminId,
-      projName: String,
+      projName,
       read: 0
     });
+    await inbox.save();
   } else {
     userId = user._id;
+    projectMembers = await userProjectModel.find({ projectId });
   }
   let tbduser = await userProjectModel({ userId, projectId });
   if (tbduser.role == "owner") return res.json({ message: "Can't remove the owner" });
   await userProjectModel.findOneAndRemove({ userId, projectId });
-  await inbox.save();
+  if (projectMembers.length == 1) {
+    let tobedeletedProject = await projectModel.findById(projectId);
+    let allBugs = [];
+    allBugs = tobedeletedProject.bugAssigned;
+    removeBuddyfrombugs.emit("removeAllbugs", allBugs);
+    await projectModel.findByIdAndRemove(projectId);
+  }
   let data = {
     projectId,
     removalId: userId
