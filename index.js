@@ -26,6 +26,6 @@ const url = process.env.MONGODB_URI || `mongodb://localhost:27017/bug-tracker`;
 // mongoose.set("useCreateIndex", true);
 // mongoose.set("useUnifiedTopology", true);
 
-mongoose.connect(url, () => console.log("Connection established succesfully at", url, "\nStanding By..."));
+mongoose.connect(url, () => console.log("Connection established succesfully \nStanding By..."));
 
 module.exports = server;
