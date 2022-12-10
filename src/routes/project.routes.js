@@ -1,6 +1,6 @@
-import projectController from "../controllers/projectController";
-import auth from "../auth/auth";
-import { Router } from "express";
+const projectController = require("../controllers/projectController");
+const auth = require("../auth/auth");
+const { Router } = require("express");
 
 const router = Router();
 

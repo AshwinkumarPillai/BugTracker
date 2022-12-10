@@ -1,10 +1,9 @@
-import projectModel from "../models/project";
-import userProjectModel from "../models/UserProject";
-import userModel from "../models/user";
-import bugModel from "../models/bug";
-import inboxModel from "../models/inbox";
-import mongoose from "mongoose";
-import removeBuddyfrombugs from "../events/inboxDispatcher";
+const projectModel = require("../models/project");
+const userProjectModel = require("../models/UserProject");
+const userModel = require("../models/user");
+const bugModel = require("../models/bug");
+const inboxModel = require("../models/inbox");
+const removeBuddyfrombugs = require("../events/inboxDispatcher");
 
 module.exports.createProject = (req, res) => {
   const user = req.user;
@@ -14,28 +13,28 @@ module.exports.createProject = (req, res) => {
   const newProject = new projectModel({
     title,
     superAdmin,
-    bugAssigned: []
+    bugAssigned: [],
   });
   newProject
     .save()
-    .then(project => {
+    .then((project) => {
       if (!project) return res.json("Project not saved");
       const newUserProject = new userProjectModel({
         projectId: project._id,
         userId: superAdmin,
         role: "owner",
-        active: 1
+        active: 1,
       });
 
       newUserProject
         .save()
-        .then(up => {
+        .then((up) => {
           if (!up) return res.json({ message: "Error in creating userProject" });
           return res.json({ up, project });
         })
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     })
-    .catch(err => console.log(err));
+    .catch((err) => console.log(err));
 };
 
 module.exports.getAllUsers = async (req, res) => {
@@ -87,7 +86,7 @@ module.exports.addBuddy = async (req, res) => {
         userId: newBuddy,
         role,
         active: 0,
-        activationId: checkuser.email + "BIScHQAekqkD7jMFlpWz"
+        activationId: checkuser.email + "BIScHQAekqkD7jMFlpWz",
       });
 
       let BuddyAdded = await newUserProject.save();
@@ -102,7 +101,7 @@ module.exports.addBuddy = async (req, res) => {
         sourceName: adminName, //Name
         sourceId: userId,
         projName: projectName,
-        read: 0
+        read: 0,
       });
 
       await inbox.save();
@@ -143,7 +142,7 @@ module.exports.approveProject = async (req, res) => {
     sourceName: user.name, //Name
     sourceId: user._id,
     projName: projectTitle,
-    read: 0
+    read: 0,
   });
   await inbox.save();
   await inboxModel.findByIdAndRemove(inboxId);
@@ -168,7 +167,7 @@ module.exports.rejectProject = async (req, res) => {
     sourceName: user.name, //Name
     sourceId: user._id,
     projName: projectTitle,
-    read: 0
+    read: 0,
   });
   await inbox.save();
   await inboxModel.findByIdAndRemove(inboxId);
@@ -190,7 +189,8 @@ module.exports.removeBuddy = async (req, res) => {
     let adminId = user._id;
     let adminProj = await userProjectModel.findOne({ userId: adminId, projectId });
     if (!adminProj) return res.json({ message: "No project Found!" });
-    if (adminProj.role == "dev") return res.json({ message: "You are not authorized to perform this action" });
+    if (adminProj.role == "dev")
+      return res.json({ message: "You are not authorized to perform this action" });
 
     inbox = new inboxModel({
       userId,
@@ -201,7 +201,7 @@ module.exports.removeBuddy = async (req, res) => {
       sourceName: adminName, //Name
       sourceId: adminId,
       projName,
-      read: 0
+      read: 0,
     });
     await inbox.save();
   } else {
@@ -220,7 +220,7 @@ module.exports.removeBuddy = async (req, res) => {
   }
   let data = {
     projectId,
-    removalId: userId
+    removalId: userId,
   };
   removeBuddyfrombugs.emit("removefrombugs", data);
   return res.json({ message: "Removed successfully" });
@@ -235,8 +235,8 @@ module.exports.deleteProject = async (req, res, next) => {
   if (JSON.stringify(project.superAdmin) == JSON.stringify(user._id)) {
     await bugModel.deleteMany({
       _id: {
-        $in: project.bugAssigned
-      }
+        $in: project.bugAssigned,
+      },
     });
     await projectModel.findByIdAndRemove(projectId);
     let user = await userProjectModel.deleteMany({ projectId });
@@ -251,12 +251,12 @@ module.exports.deleteProject = async (req, res, next) => {
       type: 5, // 1-proj, 2-bug-assigned ,3-bug-created/edit, 4-misc,5-error/security
       sourceName: user.name, //Name
       projName: project.title,
-      read: 0
+      read: 0,
     });
     await inbox.save();
     return res.json({
       message: "You are not authorized to perform this action",
-      statusCode: 307
+      statusCode: 307,
     });
   }
 };

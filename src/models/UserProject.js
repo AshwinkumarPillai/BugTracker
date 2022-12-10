@@ -1,4 +1,5 @@
-import mongoose, { Schema, mongo } from "mongoose";
+const mongoose = require("mongoose");
+const { Schema } = require("mongoose");
 
 const ObjectId = Schema.Types.ObjectId;
 
@@ -6,25 +7,25 @@ const userProjectSChema = new Schema(
   {
     projectId: {
       type: ObjectId,
-      ref: "project"
+      ref: "project",
     },
     userId: {
       type: ObjectId,
-      ref: "user"
+      ref: "user",
     },
     role: {
       type: String,
-      required: true
+      required: true,
     },
     active: {
       type: Number,
-      default: 0
+      default: 0,
     },
     activationId: {
       type: String,
       required: false,
-      default: ""
-    }
+      default: "",
+    },
   },
   { timestamps: true }
 );

@@ -1,63 +1,64 @@
-import mongoose, { Schema } from "mongoose";
+const mongoose = require("mongoose");
+const { Schema } = require("mongoose");
 const ObjectId = Schema.Types.ObjectId;
 
 const BugSchema = new Schema(
   {
     title: {
       type: String,
-      required: true
+      required: true,
     },
     subtitle: {
       type: String,
-      default: ""
+      default: "",
     },
     status: {
       type: String,
-      required: true
+      required: true,
     },
     priority: {
-      type: String
+      type: String,
     },
     archived: {
       type: Number,
-      default: 0
+      default: 0,
     },
     screenShot: {
       type: String,
-      default: ""
+      default: "",
     },
     deadline: {
       type: Date,
-      default: "0000-01-01"
+      default: "0000-01-01",
     },
     solution: {
       type: String,
-      default: ""
+      default: "",
     },
     assignedDev: [
       {
         userId: {
           type: ObjectId,
-          ref: "user"
+          ref: "user",
         },
         watch: {
           type: Number,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     ],
     createdBy: {
       type: ObjectId,
-      ref: "user"
+      ref: "user",
     },
     watch_creator: {
       type: Number,
-      default: 0
+      default: 0,
     },
     solvedBy: {
       type: ObjectId,
-      ref: "user"
-    }
+      ref: "user",
+    },
   },
   { timestamps: true }
 );

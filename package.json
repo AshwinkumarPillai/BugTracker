@@ -1,40 +1,34 @@
 {
   "name": "bug-tracker",
   "version": "1.0.0",
+  "description": "Bug Tracker Backend",
   "main": "index.js",
-  "engines": {
-    "node": "10.15.1"
-  },
   "scripts": {
-    "start": "babel-node index.js",
-    "dev:start": "nodemon --exec babel-node index.js"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
-  "author": "Ashwinkumar A Pillai",
-  "license": "ISC",
   "dependencies": {
-    "@babel/core": "^7.7.2",
-    "@babel/node": "^7.7.0",
-    "@babel/preset-env": "^7.7.1",
-    "babel-loader": "^8.0.6",
-    "bcrypt": "^3.0.6",
-    "body-parser": "^1.19.0",
+    "bcrypt": "^5.1.0",
+    "body-parser": "^1.20.1",
     "cors": "^2.8.5",
-    "ejs": "^3.0.1",
-    "express": "^4.17.1",
+    "ejs": "^3.1.8",
+    "express": "^4.18.2",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.7.11",
-    "nodemailer": "^6.3.1"
+    "mongoose": "^6.8.0",
+    "nodemailer": "^6.8.0"
   },
   "devDependencies": {
-    "nodemon": "^1.19.4"
+    "nodemon": "^2.0.20"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AshwinkumarPillai/Bug_tracker.git"
+    "url": "git+https://github.com/AshwinkumarPillai/BugTracker.git"
   },
+  "author": "Ashwinkumar Pillai",
+  "license": "ISC",
   "bugs": {
-    "url": "https://github.com/AshwinkumarPillai/Bug_tracker/issues"
+    "url": "https://github.com/AshwinkumarPillai/BugTracker/issues"
   },
-  "homepage": "https://github.com/AshwinkumarPillai/Bug_tracker#readme",
-  "description": ""
+  "homepage": "https://github.com/AshwinkumarPillai/BugTracker#readme"
 }

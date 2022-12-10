@@ -1,5 +1,5 @@
-import userModel from "../models/user";
-import jwt from "jsonwebtoken";
+const userModel = require("../models/user");
+const jwt = require("jsonwebtoken");
 
 module.exports.checkToken = async (req, res, next) => {
   // console.log("Check Token called");

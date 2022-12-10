@@ -1,21 +1,22 @@
-import mongoose, { Schema } from "mongoose";
+const mongoose = require("mongoose");
+const { Schema } = require("mongoose");
 
 const projectSchema = new Schema(
   {
     title: {
       type: String,
-      required: true
+      required: true,
     },
     superAdmin: {
       type: Schema.Types.ObjectId,
-      ref: "user"
+      ref: "user",
     },
     bugAssigned: [
       {
         type: Schema.Types.ObjectId,
-        ref: "bug"
-      }
-    ]
+        ref: "bug",
+      },
+    ],
   },
   { timestamps: true }
 );

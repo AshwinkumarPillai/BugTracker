@@ -1,6 +1,6 @@
-import BugController from "../controllers/bugController";
-import auth from "../auth/auth";
-import { Router } from "express";
+const BugController = require("../controllers/bugController");
+const auth = require("../auth/auth");
+const { Router } = require("express");
 
 const router = Router();
 

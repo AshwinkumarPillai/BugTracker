@@ -1,12 +1,12 @@
-import userModel from "../models/user";
-import projectModel from "../models/project";
-import userProjectModel from "../models/UserProject";
-import inboxModel from "../models/inbox";
-import bugModel from "../models/bug";
-import bcrypt from "bcrypt";
-import mongoose from "mongoose";
-import jwt from "jsonwebtoken";
-import mail from "../services/mailService";
+const userModel = require("../models/user");
+const projectModel = require("../models/project");
+const userProjectModel = require("../models/UserProject");
+const inboxModel = require("../models/inbox");
+const bugModel = require("../models/bug");
+const bcrypt = require("bcrypt");
+const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
+const mail = require("../services/mailService");
 
 module.exports.login = async (req, res) => {
   const email = req.body.email;
@@ -18,7 +18,7 @@ module.exports.login = async (req, res) => {
     if (isEqual) {
       let token = jwt.sign(
         {
-          id: user._id
+          id: user._id,
         },
         secret
       );
@@ -31,7 +31,7 @@ module.exports.login = async (req, res) => {
         github: user.github,
         twitter: user.twitter,
         portfolio: user.portfolio,
-        linkedIn: user.linkedIn
+        linkedIn: user.linkedIn,
       };
       return res.json({ message: "Logged in Succesfully.Hello " + user.name, token, userdata });
     }
@@ -46,7 +46,7 @@ module.exports.registerUser = (req, res) => {
     return res.json({ message: "Please fill all neccessary fields", status: -1 });
   userModel
     .findOne({ email: req.body.email })
-    .then(user => {
+    .then((user) => {
       if (user) return res.json({ message: "Email Already registered!", status: -1 });
       else {
         const hashedPassword = bcrypt.hashSync(req.body.password, 12);
@@ -60,20 +60,20 @@ module.exports.registerUser = (req, res) => {
           github: req.body.github,
           twitter: req.body.twitter,
           portfolio: req.body.portfolio,
-          linkedIn: req.body.linkedIn
+          linkedIn: req.body.linkedIn,
         });
 
         newUser
           .save()
-          .then(userDoc => {
+          .then((userDoc) => {
             if (userDoc) {
               return res.json({ message: "Registration Successful", status: 200 });
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
       }
     })
-    .catch(err => console.log(err));
+    .catch((err) => console.log(err));
 };
 
 module.exports.editUsers = async (req, res) => {
@@ -104,7 +104,7 @@ module.exports.editUsers = async (req, res) => {
       github: update.github,
       twitter: update.twitter,
       portfolio: update.portfolio,
-      linkedIn: update.linkedIn
+      linkedIn: update.linkedIn,
     };
     return res.json({ message: "Profile updated successfully!", userdata });
   } catch (err) {
@@ -117,12 +117,12 @@ module.exports.getAllProjects = async (req, res) => {
   try {
     let userProjects = await userProjectModel.find({ userId: user._id, active: 1 });
     if (userProjects.length == 0) return res.json({ message: "No Projects yet!" });
-    let projIds = userProjects.map(obj => mongoose.Types.ObjectId(obj.projectId));
+    let projIds = userProjects.map((obj) => mongoose.Types.ObjectId(obj.projectId));
     let projects = await projectModel
       .find({
         _id: {
-          $in: projIds
-        }
+          $in: projIds,
+        },
       })
       .populate("superAdmin", "name email designation")
       .exec((err, projects) => {
@@ -151,9 +151,9 @@ module.exports.getOneProject = async (req, res) => {
       let bugs = await bugModel
         .find({
           _id: {
-            $in: project.bugAssigned
+            $in: project.bugAssigned,
           },
-          archived: 0
+          archived: 0,
         })
         .populate("assignedDev.userId solvedBy", "name email designation");
       if (err) console.log(err);

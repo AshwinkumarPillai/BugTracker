@@ -1,10 +1,10 @@
-import mongoose from "mongoose";
-import BugModel from "../models/bug";
-import projectModel from "../models/project";
-import userProjectModel from "../models/UserProject";
-import userModel from "../models/user";
-import inboxModel from "../models/inbox";
-import inboxDispatcher from "../events/inboxDispatcher";
+const mongoose = require("mongoose");
+const BugModel = require("../models/bug");
+const projectModel = require("../models/project");
+const userProjectModel = require("../models/UserProject");
+const userModel = require("../models/user");
+const inboxModel = require("../models/inbox");
+const inboxDispatcher = require("../events/inboxDispatcher");
 
 module.exports.getAll = async (req, res) => {
   const projectId = req.body.projectId;
@@ -13,8 +13,8 @@ module.exports.getAll = async (req, res) => {
   if (project.bugAssigned.length !== 0) {
     bugs = await BugModel.find({
       _id: {
-        $in: project.bugAssigned
-      }
+        $in: project.bugAssigned,
+      },
     });
   }
   if (bugs.length === 0) return res.json({ message: "No bugs in this project" });
@@ -37,10 +37,10 @@ module.exports.createBug = async (req, res) => {
   const creatorName = user.name;
   let assignedDev = [];
   if (getassignedDev.length !== 0) {
-    getassignedDev.forEach(devId => {
+    getassignedDev.forEach((devId) => {
       let obj = {
         userId: devId,
-        watch: 0
+        watch: 0,
       };
       assignedDev.push(obj);
     });
@@ -63,31 +63,32 @@ module.exports.createBug = async (req, res) => {
       deadline,
       assignedDev,
       createdBy,
-      watch_creator
+      watch_creator,
     });
 
     let bug = await newBug.save();
     if (!bug) return res.json("Error in registering bug");
-    let devIds = bug.assignedDev.map(obj => obj.userId);
+    let devIds = bug.assignedDev.map((obj) => obj.userId);
     let users = await userModel.find({
       _id: {
-        $in: devIds
-      }
+        $in: devIds,
+      },
     });
 
-    users.forEach(async user => {
+    users.forEach(async (user) => {
       user.password = "";
       let inbox = new inboxModel({
         userId: user._id,
         projectId,
         bugId: bug._id,
         title: "New bug assigned",
-        message: "A new bug was created and assigned to you by " + creatorName + " in project " + project.title,
+        message:
+          "A new bug was created and assigned to you by " + creatorName + " in project " + project.title,
         type: 2, // 1-proj, 2-bug-assigned ,3-bug-created/edit, 4-misc
         sourceName: creatorName, //Name
         sourceId,
         projName: project.title,
-        read: 0
+        read: 0,
       });
       await inbox.save();
     });
@@ -154,7 +155,7 @@ module.exports.edit = async (req, res) => {
       type: 3,
       creatorName,
       sourceId,
-      projectTitle
+      projectTitle,
     };
     inboxDispatcher.emit("bugUpdateInbox", data);
     return res.json({ upBug });
@@ -182,7 +183,7 @@ module.exports.archive = async (req, res) => {
       type: 3,
       creatorName: user.name,
       sourceId: user._id,
-      projectTitle
+      projectTitle,
     };
     inboxDispatcher.emit("bugUpdateInbox", data);
     return res.json({ upBug });
@@ -213,7 +214,7 @@ module.exports.solution = async (req, res) => {
       type: 3,
       creatorName: user.name,
       sourceId: user._id,
-      projectTitle
+      projectTitle,
     };
     inboxDispatcher.emit("bugUpdateInbox", data);
     return res.json({ upBug });
@@ -232,10 +233,10 @@ module.exports.AssignDev = async (req, res) => {
   const projectTitle = req.body.projectName;
 
   let assignedDev = [];
-  dev.forEach(devId => {
+  dev.forEach((devId) => {
     let obj = {
       watch: 0,
-      userId: devId
+      userId: devId,
     };
     assignedDev.push(obj);
   });
@@ -246,8 +247,8 @@ module.exports.AssignDev = async (req, res) => {
 
     let users = await userModel.find({
       _id: {
-        $in: dev
-      }
+        $in: dev,
+      },
     });
 
     let data = {
@@ -258,7 +259,7 @@ module.exports.AssignDev = async (req, res) => {
       type: 3,
       creatorName: sourceName,
       sourceId,
-      projectTitle
+      projectTitle,
     };
     inboxDispatcher.emit("bugUpdateInbox", data);
 
