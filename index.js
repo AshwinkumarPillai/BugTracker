@@ -18,6 +18,10 @@ server.use("/project", projectRoutes);
 server.use("/user", userRoutes);
 server.use("/bug", bugRoutes);
 
+server.get("/", (req, res) => {
+  res.sendStatus(200);
+});
+
 const url = process.env.MONGODB_URI || `mongodb://localhost:27017/bug-tracker`;
 
 // mongoose.Promise = global.Promise;
