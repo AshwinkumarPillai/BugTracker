@@ -4,6 +4,12 @@ const { Router } = require("express");
 
 const router = Router();
 
+router.get("/", (req, res) => {
+  res.json({
+    hello: "hi!",
+  });
+});
+
 router.post("/new", auth.checkToken, projectController.createProject);
 router.post("/addbuddy", auth.checkToken, projectController.addBuddy);
 router.post("/getAllUsers", auth.checkToken, projectController.getAllUsers);

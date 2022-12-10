@@ -17,4 +17,4 @@
 
 // export default server;
 
-// Obsolete - now using serverless and hosting on netlify - the server is setup in src/api.js
+// Obsolete - code shifted to index.js
