@@ -4,6 +4,7 @@ const bugRoutes = require("./src/routes/bug.routes");
 const userRoutes = require("./src/routes/user.routes");
 const projectRoutes = require("./src/routes/project.routes");
 const mongoose = require("mongoose");
+require("dotenv").config();
 
 const cors = require("cors");
 
@@ -18,11 +19,8 @@ server.use("/project", projectRoutes);
 server.use("/user", userRoutes);
 server.use("/bug", bugRoutes);
 
-server.get("/", (req, res) => {
-  res.sendStatus(200);
-});
-
 const url = process.env.MONGODB_URI || `mongodb://localhost:27017/bug-tracker`;
+const PORT = process.env.PORT || 3200;
 
 // mongoose.Promise = global.Promise;
 // mongoose.set("useNewUrlParser", true);
@@ -30,6 +28,9 @@ const url = process.env.MONGODB_URI || `mongodb://localhost:27017/bug-tracker`;
 // mongoose.set("useCreateIndex", true);
 // mongoose.set("useUnifiedTopology", true);
 
-mongoose.connect(url, () => console.log("Connection established succesfully \nStanding By..."));
+mongoose.connect(url, () => {
+  server.listen(PORT);
+  console.log("Connection established succesfully \nStanding By...");
+});
 
 module.exports = server;
