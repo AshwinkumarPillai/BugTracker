@@ -19,6 +19,10 @@ server.use("/project", projectRoutes);
 server.use("/user", userRoutes);
 server.use("/bug", bugRoutes);
 
+app.use("/schedule-pinger", (req, res) => {
+  res.send("Thank you for keeping me alive pinger!\n-Bug Tracker");
+});
+
 const url = process.env.MONGODB_URI || `mongodb://localhost:27017/bug-tracker`;
 const PORT = process.env.PORT || 3200;
 
