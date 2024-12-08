@@ -19,7 +19,7 @@ server.use("/project", projectRoutes);
 server.use("/user", userRoutes);
 server.use("/bug", bugRoutes);
 
-app.use("/schedule-pinger", (req, res) => {
+server.use("/schedule-pinger", (req, res) => {
   res.send("Thank you for keeping me alive pinger!\n-Bug Tracker");
 });
 
